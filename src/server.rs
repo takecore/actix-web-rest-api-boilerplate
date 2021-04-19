@@ -12,7 +12,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(apps::user::views::list))
             .route("", web::post().to(apps::user::views::create))
             .route("/{id}", web::post().to(apps::user::views::update))
-            // .route("/{id}", web::get().to(apps::user::views::retrieve))
+            .route("/{id}", web::get().to(apps::user::views::retrieve))
             .route("/{id}", web::delete().to(apps::user::views::destroy)),
     )
     .route("/countup", web::get().to(apps::countup))

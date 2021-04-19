@@ -18,4 +18,10 @@ impl User {
         let items = users.load::<User>(connection)?;
         Ok(items)
     }
+
+    pub fn id(connection: &MysqlConnection, id: u64) -> Result<Option<User>, Error> {
+        use crate::schema::users::dsl::users;
+        let item = users.find(id).get_result::<User>(connection).optional()?;
+        Ok(item)
+    }
 }
