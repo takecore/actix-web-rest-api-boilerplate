@@ -4,15 +4,16 @@ use actix_web::{web, App, HttpServer};
 
 use crate::apps;
 use crate::config;
+use crate::db;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/users")
-            .route("/", web::get().to(apps::user::list))
-            .route("/", web::post().to(apps::user::create))
-            .route("/{id}", web::post().to(apps::user::update))
-            .route("/{id}", web::get().to(apps::user::retrieve))
-            .route("/{id}", web::delete().to(apps::user::destroy)),
+            .route("", web::get().to(apps::user::views::list))
+            .route("", web::post().to(apps::user::views::create))
+            .route("/{id}", web::post().to(apps::user::views::update))
+            // .route("/{id}", web::get().to(apps::user::views::retrieve))
+            .route("/{id}", web::delete().to(apps::user::views::destroy)),
     )
     .route("/countup", web::get().to(apps::countup))
     .route("/echo", web::get().to(apps::echo))
@@ -29,6 +30,7 @@ pub async fn run() -> std::io::Result<()> {
             .data(config::AppState {
                 app_name: String::from("Actic-web"),
             })
+            .data(db::create_connection_pool().clone())
             .app_data(counter.clone())
             .configure(routes)
     })
