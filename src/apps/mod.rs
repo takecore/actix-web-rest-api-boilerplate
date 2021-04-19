@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use crate::config;
 use actix_web::{web, HttpResponse, Responder};
 
-pub mod user;
+pub mod users;
 
 pub struct AppStateWithCounter {
     pub counter: Mutex<i32>, // <- Mutex is necessary to mutate safely across threads

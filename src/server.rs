@@ -9,11 +9,11 @@ use crate::db;
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/users")
-            .route("", web::get().to(apps::user::views::list))
-            .route("", web::post().to(apps::user::views::create))
-            .route("/{id}", web::post().to(apps::user::views::update))
-            .route("/{id}", web::get().to(apps::user::views::retrieve))
-            .route("/{id}", web::delete().to(apps::user::views::destroy)),
+            .route("", web::get().to(apps::users::views::list))
+            .route("", web::post().to(apps::users::views::create))
+            .route("/{id}", web::post().to(apps::users::views::update))
+            .route("/{id}", web::get().to(apps::users::views::retrieve))
+            .route("/{id}", web::delete().to(apps::users::views::destroy)),
     )
     .route("/countup", web::get().to(apps::countup))
     .route("/echo", web::get().to(apps::echo))
