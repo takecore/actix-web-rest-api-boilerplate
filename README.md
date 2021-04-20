@@ -1,38 +1,32 @@
-Actix Web boilerplate
+# Actix Web boilerplate
 
-## Need to install diesel_cli on your system to use migration
+## Setup and run server
 
-```
+```sh
+# Need to install diesel_cli on your system to run migration
 $ cargo install diesel_cli --no-default-features --features "postgres"
+$ echo DATABASE_URL=postgres://username:password@yourhost/good_db_name > .env
+$ make run
 ```
 
-put DATABASE_URL variable on .env file
-```
-echo DATABASE_URL=postgres://username:password@yourhost/good_db_name > .env
-```
+## Other
 
-create migration files
+### create migration files
 ```
 $ diesel migration generate create_xxx
 ```
 
-run migraiton
+### run migraiton
 ```
 $ make migration
 ```
 
-rollback and run migraiton
+### rollback and run migraiton
 ```
 $ make migration-redo
 ```
 
-reset db
+### reset db
 ```
 $ make reset-db
-```
-
-## Run Server
-
-```
-make run
 ```

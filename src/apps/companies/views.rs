@@ -15,7 +15,6 @@ pub struct UpdateCompany {
 }
 
 // TODO get connection from pool on middleware
-// TODO RESTful model handling
 pub async fn list(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect("couldn't get db connection from pool");
     Ok(web::block(move || models::Company::all(&conn))
