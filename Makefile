@@ -9,3 +9,7 @@ migrate:
 .PHONY: migrate-redo
 migrate-redo:
 	diesel migration redo
+
+.PHONY: reset-db
+reset-db:
+	diesel database reste

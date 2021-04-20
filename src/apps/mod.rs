@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use crate::config;
 use actix_web::{web, HttpResponse, Responder};
 
+pub mod companies;
 pub mod users;
 
 pub struct AppStateWithCounter {

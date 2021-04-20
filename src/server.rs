@@ -8,6 +8,22 @@ use crate::db;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
+        web::scope("/companies")
+            .service(
+                web::resource("")
+                    .name("company-list")
+                    .route(web::get().to(apps::companies::views::list))
+                    .route(web::post().to(apps::companies::views::create)),
+            )
+            .service(
+                web::resource("/{id}")
+                    .name("company-detail")
+                    .route(web::post().to(apps::companies::views::update))
+                    .route(web::get().to(apps::companies::views::retrieve))
+                    .route(web::delete().to(apps::companies::views::destroy)),
+            ),
+    )
+    .service(
         web::scope("/users")
             .route("", web::get().to(apps::users::views::list))
             .route("", web::post().to(apps::users::views::create))

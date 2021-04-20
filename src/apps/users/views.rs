@@ -1,5 +1,4 @@
 use actix_web::{web, Error, HttpResponse, Responder};
-// use futures::future::{ready, Ready};
 
 use crate::apps::users::models::User;
 use crate::db::DbPool;
@@ -21,17 +20,13 @@ pub async fn update() -> impl Responder {
     HttpResponse::Ok().body("user update")
 }
 
-pub async fn retrieve(pool: web::Data<DbPool>, id: web::Path<u64>) -> Result<HttpResponse, Error> {
+pub async fn retrieve(pool: web::Data<DbPool>, id: web::Path<i32>) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect("couldn't get db connection from pool");
     Ok(web::block(move || User::id(&conn, id.into_inner()))
         .await
-        .map(|item| {
-            if let Some(item) = item {
-                HttpResponse::Ok().json(item)
-            } else {
-                // TODO Implement common not found body
-                HttpResponse::NotFound().finish()
-            }
+        .map(|item| match item {
+            Some(v) => HttpResponse::Ok().json(v),
+            None => HttpResponse::NotFound().finish(),
         })
         .map_err(|_| HttpResponse::InternalServerError())?)
 }

@@ -3,12 +3,12 @@ Actix Web boilerplate
 ## Need to install diesel_cli on your system to use migration
 
 ```
-$ cargo install diesel_cli --no-default-features --features "mysql"
+$ cargo install diesel_cli --no-default-features --features "postgres"
 ```
 
 put DATABASE_URL variable on .env file
 ```
-echo DATABASE_URL=mysql://username:password@yourhost/good_db_name > .env
+echo DATABASE_URL=postgres://username:password@yourhost/good_db_name > .env
 ```
 
 create migration files
@@ -26,7 +26,12 @@ rollback and run migraiton
 $ make migration-redo
 ```
 
-## Run
+reset db
+```
+$ make reset-db
+```
+
+## Run Server
 
 ```
 make run

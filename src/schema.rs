@@ -1,6 +1,6 @@
 table! {
     companies (id) {
-        id -> Unsigned<Bigint>,
+        id -> Int4,
         name -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
@@ -9,8 +9,8 @@ table! {
 
 table! {
     users (id) {
-        id -> Unsigned<Bigint>,
-        company_id -> Unsigned<Bigint>,
+        id -> Int4,
+        company_id -> Int4,
         name -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
