@@ -1,3 +1,5 @@
+embed_migrations!();
+
 use std::env;
 
 use diesel::pg::PgConnection;
@@ -6,8 +8,6 @@ use once_cell::sync::Lazy;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
-
-embed_migrations!();
 
 static DBPOOL: Lazy<DbPool> = Lazy::new(|| {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
