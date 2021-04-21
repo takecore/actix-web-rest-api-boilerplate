@@ -1,4 +1,4 @@
-# Actix Web boilerplate
+# Actix-web3 REST Api boilerplate
 
 ## Setup and run server
 
@@ -20,7 +20,6 @@ $ make watch
 ├── Cargo.toml
 ├── diesel.toml
 ├── Makefile
-├── memo.md
 ├── migrations
 │   ├── 00000000000000_diesel_initial_setup
 │   │   ├── down.sql
@@ -38,7 +37,7 @@ $ make watch
     │   │   ├── models.rs
     │   │   ├── mod.rs
     │   │   └── views.rs
-    │   └── ...
+    │   └── ... # create other resouce
     ├── db.rs
     ├── main.rs
     ├── schema.rs

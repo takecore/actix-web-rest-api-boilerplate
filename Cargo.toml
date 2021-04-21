@@ -1,5 +1,5 @@
 [package]
-name = "actix-sample"
+name = "actix-web3-rest-api-boilerplate"
 version = "0.1.0"
 authors = ["Takehiro Ohtani <isit7a@gmail.com>"]
 edition = "2018"

@@ -121,22 +121,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "actix-sample"
-version = "0.1.0"
-dependencies = [
- "actix-web",
- "chrono",
- "diesel",
- "diesel_migrations",
- "dotenv",
- "futures",
- "log",
- "once_cell",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "actix-server"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -275,6 +259,22 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "actix-web3-rest-api-boilerplate"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "chrono",
+ "diesel",
+ "diesel_migrations",
+ "dotenv",
+ "futures",
+ "log",
+ "once_cell",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
