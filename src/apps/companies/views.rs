@@ -48,11 +48,11 @@ pub async fn create(
 
 pub async fn update(
     pool: web::Data<DbPool>,
-    id: web::Path<i32>,
+    web::Path(id): web::Path<i32>,
     json: web::Json<UpdateCompany>,
 ) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let item = web::block(move || models::Company::id(&conn, id.into_inner()))
+    let item = web::block(move || models::Company::id(&conn, id))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
@@ -60,9 +60,9 @@ pub async fn update(
         })?;
 
     match item {
-        Some(v) => {
+        Some(item) => {
             let conn = pool.get().expect("couldn't get db connection from pool");
-            Ok(web::block(move || v.update(&conn, &json.into_inner()))
+            Ok(web::block(move || item.update(&conn, &json.into_inner()))
                 .await
                 .map(|item| HttpResponse::Ok().json(item))
                 .map_err(|e| {
@@ -74,22 +74,26 @@ pub async fn update(
     }
 }
 
-pub async fn retrieve(pool: web::Data<DbPool>, id: web::Path<i32>) -> Result<HttpResponse, Error> {
+pub async fn retrieve(
+    pool: web::Data<DbPool>,
+    web::Path(id): web::Path<i32>,
+) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    Ok(
-        web::block(move || models::Company::id(&conn, id.into_inner()))
-            .await
-            .map(|item| match item {
-                Some(v) => HttpResponse::Ok().json(v),
-                None => HttpResponse::NotFound().finish(),
-            })
-            .map_err(|_| HttpResponse::InternalServerError())?,
-    )
+    Ok(web::block(move || models::Company::id(&conn, id))
+        .await
+        .map(|item| match item {
+            Some(v) => HttpResponse::Ok().json(v),
+            None => HttpResponse::NotFound().finish(),
+        })
+        .map_err(|_| HttpResponse::InternalServerError())?)
 }
 
-pub async fn destroy(pool: web::Data<DbPool>, id: web::Path<i32>) -> Result<HttpResponse, Error> {
+pub async fn destroy(
+    pool: web::Data<DbPool>,
+    web::Path(id): web::Path<i32>,
+) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect("couldn't get db connection from pool");
-    let item = web::block(move || models::Company::id(&conn, id.into_inner()))
+    let item = web::block(move || models::Company::id(&conn, id))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
@@ -97,9 +101,9 @@ pub async fn destroy(pool: web::Data<DbPool>, id: web::Path<i32>) -> Result<Http
         })?;
 
     match item {
-        Some(v) => {
+        Some(item) => {
             let conn = pool.get().expect("couldn't get db connection from pool");
-            Ok(web::block(move || v.delete(&conn))
+            Ok(web::block(move || item.delete(&conn))
                 .await
                 .map(|_| HttpResponse::NoContent().finish())
                 .map_err(|e| {

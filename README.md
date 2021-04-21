@@ -3,10 +3,14 @@
 ## Setup and run server
 
 ```sh
-# Need to install diesel_cli on your system to run migration
+# Need to install diesel_cli on your system to run migration.
 $ cargo install diesel_cli --no-default-features --features "postgres"
 $ echo DATABASE_URL=postgres://username:password@yourhost/good_db_name > .env
+$ diesel setup
 $ make run
+
+# If installed cargo-watch, This can be auto recompile.
+$ make watch
 ```
 
 ## Structure

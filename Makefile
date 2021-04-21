@@ -2,6 +2,10 @@
 run:
 	cargo run
 
+.PHONY: watch
+watch:
+	cargo watch -x 'run'
+
 .PHONY: migrate
 migrate:
 	diesel migration run
