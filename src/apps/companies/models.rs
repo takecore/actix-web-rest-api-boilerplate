@@ -1,9 +1,9 @@
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
 use serde::{Deserialize, Serialize};
 
 use crate::apps::companies::views::UpdateCompany as ViewUpdateCompany;
+use crate::db;
 use crate::schema::companies;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable)]
@@ -28,46 +28,42 @@ pub struct UpdateCompany<'a> {
 }
 
 impl Company {
-    pub fn all(connection: &PgConnection) -> Result<Vec<Self>, Error> {
+    pub fn all() -> Result<Vec<Self>, Error> {
         use crate::schema::companies::dsl::companies;
-        let items = companies.load::<Self>(connection)?;
+        let items = companies.load::<Self>(&db::connect())?;
         Ok(items)
     }
 
-    pub fn id(connection: &PgConnection, id: i32) -> Result<Option<Self>, Error> {
+    pub fn id(id: i32) -> Result<Option<Self>, Error> {
         use crate::schema::companies::dsl::companies;
         let item = companies
             .find(id)
-            .get_result::<Self>(connection)
+            .get_result::<Self>(&db::connect())
             .optional()?;
         Ok(item)
     }
 
-    pub fn update(
-        &self,
-        connection: &PgConnection,
-        update: &ViewUpdateCompany,
-    ) -> Result<Company, Error> {
+    pub fn update(&self, update: &ViewUpdateCompany) -> Result<Company, Error> {
         let item = diesel::update(self)
             .set(UpdateCompany {
                 name: update.name.as_ref().map(AsRef::as_ref),
             })
-            .get_result::<Self>(connection)?;
+            .get_result::<Self>(&db::connect())?;
         Ok(item)
     }
 
-    pub fn delete(&self, connection: &PgConnection) -> Result<usize, Error> {
-        let count = diesel::delete(self).execute(connection)?;
+    pub fn delete(&self) -> Result<usize, Error> {
+        let count = diesel::delete(self).execute(&db::connect())?;
         Ok(count)
     }
 }
 
 impl CreateCompany {
-    pub fn create(&self, connection: &PgConnection) -> Result<Company, Error> {
+    pub fn create(&self) -> Result<Company, Error> {
         use crate::schema::companies::dsl::companies;
         let item = diesel::insert_into(companies)
             .values(self)
-            .get_result::<Company>(connection)?;
+            .get_result::<Company>(&db::connect())?;
         Ok(item)
     }
 }
