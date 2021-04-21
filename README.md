@@ -39,7 +39,6 @@ $ make watch
     │   │   ├── mod.rs
     │   │   └── views.rs
     │   └── ...
-    ├── config.rs
     ├── db.rs
     ├── main.rs
     ├── schema.rs

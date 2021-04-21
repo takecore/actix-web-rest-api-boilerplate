@@ -1,8 +1,8 @@
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
 use serde::{Deserialize, Serialize};
 
+use crate::db;
 use crate::schema::users;
 
 #[derive(Queryable, Debug, Serialize, Deserialize)]
@@ -22,39 +22,38 @@ pub struct CreateUser {
 }
 
 impl User {
-    pub fn all(connection: &PgConnection) -> Result<Vec<Self>, Error> {
+    pub fn all() -> Result<Vec<Self>, Error> {
         use crate::schema::users::dsl::users;
-        let items = users.load::<Self>(connection)?;
+        let items = users.load::<Self>(&db::connect())?;
         Ok(items)
     }
 
-    pub fn id(connection: &PgConnection, id: i32) -> Result<Option<Self>, Error> {
+    pub fn id(id: i32) -> Result<Option<Self>, Error> {
         use crate::schema::users::dsl::users;
-        let item = users.find(id).get_result::<Self>(connection).optional()?;
+        let item = users
+            .find(id)
+            .get_result::<Self>(&db::connect())
+            .optional()?;
         Ok(item)
     }
 
-    pub fn id_with_company_id(
-        connection: &PgConnection,
-        id: i32,
-        company_id: i32,
-    ) -> Result<Option<Self>, Error> {
+    pub fn id_with_company_id(id: i32, company_id: i32) -> Result<Option<Self>, Error> {
         use crate::schema::users::dsl;
         let item = dsl::users
             .find(id)
             .filter(dsl::company_id.eq(company_id))
-            .get_result::<Self>(connection)
+            .get_result::<Self>(&db::connect())
             .optional()?;
         Ok(item)
     }
 }
 
 impl CreateUser {
-    pub fn create(&self, connection: &PgConnection) -> Result<User, Error> {
+    pub fn create(&self) -> Result<User, Error> {
         use crate::schema::users::dsl::users;
         let item = diesel::insert_into(users)
             .values(self)
-            .get_result::<User>(connection)?;
+            .get_result::<User>(&db::connect())?;
         Ok(item)
     }
 }

@@ -3,30 +3,25 @@ use serde::{Deserialize, Serialize};
 
 use crate::apps::companies::models::Company;
 use crate::apps::users::models;
-use crate::db::DbPool;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateUser {
     pub name: String,
 }
 
-// TODO get connection from pool on middleware
-pub async fn list(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
-    let conn = pool.get().expect("couldn't get db connection from pool");
-    Ok(web::block(move || models::User::all(&conn))
+pub async fn list() -> Result<HttpResponse, Error> {
+    Ok(web::block(move || models::User::all())
         .await
         .map(|items| HttpResponse::Ok().json(items))
         .map_err(|_| HttpResponse::InternalServerError())?)
 }
 
 pub async fn create(
-    pool: web::Data<DbPool>,
     web::Path(company_id): web::Path<i32>,
     web::Json(json): web::Json<CreateUser>,
     request: HttpRequest,
 ) -> Result<HttpResponse, Error> {
-    let conn = pool.get().expect("couldn't get db connection from pool");
-    let company = web::block(move || Company::id(&conn, company_id))
+    let company = web::block(move || Company::id(company_id))
         .await
         .map_err(|e| {
             eprintln!("{}", e);
@@ -35,12 +30,11 @@ pub async fn create(
 
     match company {
         Some(company) => {
-            let conn = pool.get().expect("couldn't get db connection from pool");
             let user = models::CreateUser {
                 company_id: company.id,
                 name: json.name,
             };
-            Ok(web::block(move || user.create(&conn))
+            Ok(web::block(move || user.create())
                 .await
                 .map(|user| {
                     let url = request.url_for(
@@ -65,12 +59,10 @@ pub async fn update() -> impl Responder {
 }
 
 pub async fn retrieve(
-    pool: web::Data<DbPool>,
     web::Path((company_id, user_id)): web::Path<(i32, i32)>,
 ) -> Result<HttpResponse, Error> {
-    let conn = pool.get().expect("couldn't get db connection from pool");
     Ok(
-        web::block(move || models::User::id_with_company_id(&conn, user_id, company_id))
+        web::block(move || models::User::id_with_company_id(user_id, company_id))
             .await
             .map(|item| match item {
                 Some(v) => HttpResponse::Ok().json(v),
