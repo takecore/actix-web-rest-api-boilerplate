@@ -5,6 +5,7 @@ extern crate diesel_migrations;
 extern crate dotenv;
 #[macro_use]
 extern crate log;
+extern crate num_cpus;
 
 mod apps;
 mod db;
