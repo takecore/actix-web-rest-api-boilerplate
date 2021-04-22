@@ -272,6 +272,7 @@ dependencies = [
  "dotenv",
  "futures",
  "log",
+ "num_cpus",
  "once_cell",
  "serde",
  "serde_json",
