@@ -14,7 +14,7 @@ pub struct User {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Insertable)]
+#[derive(Debug, Deserialize, Insertable)]
 #[table_name = "users"]
 pub struct CreateUser {
     pub company_id: i32,

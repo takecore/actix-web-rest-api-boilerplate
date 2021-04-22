@@ -2,7 +2,6 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use serde::{Deserialize, Serialize};
 
-use crate::apps::companies::views::UpdateCompany as ViewUpdateCompany;
 use crate::db;
 use crate::schema::companies;
 
@@ -15,16 +14,16 @@ pub struct Company {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, Insertable)]
+#[derive(Debug, Deserialize, Insertable)]
 #[table_name = "companies"]
 pub struct CreateCompany {
     pub name: String,
 }
 
-#[derive(AsChangeset)]
+#[derive(Deserialize, AsChangeset)]
 #[table_name = "companies"]
-pub struct UpdateCompany<'a> {
-    pub name: Option<&'a str>,
+pub struct UpdateCompany {
+    pub name: Option<String>,
 }
 
 impl Company {
@@ -43,11 +42,17 @@ impl Company {
         Ok(item)
     }
 
-    pub fn update(&self, update: &ViewUpdateCompany) -> Result<Company, Error> {
+    pub fn create(create: &CreateCompany) -> Result<Company, Error> {
+        use crate::schema::companies::dsl::companies;
+        let item = diesel::insert_into(companies)
+            .values(create)
+            .get_result::<Company>(&db::connect())?;
+        Ok(item)
+    }
+
+    pub fn update(&self, update: &UpdateCompany) -> Result<Company, Error> {
         let item = diesel::update(self)
-            .set(UpdateCompany {
-                name: update.name.as_ref().map(AsRef::as_ref),
-            })
+            .set(update)
             .get_result::<Self>(&db::connect())?;
         Ok(item)
     }
@@ -55,15 +60,5 @@ impl Company {
     pub fn delete(&self) -> Result<usize, Error> {
         let count = diesel::delete(self).execute(&db::connect())?;
         Ok(count)
-    }
-}
-
-impl CreateCompany {
-    pub fn create(&self) -> Result<Company, Error> {
-        use crate::schema::companies::dsl::companies;
-        let item = diesel::insert_into(companies)
-            .values(self)
-            .get_result::<Company>(&db::connect())?;
-        Ok(item)
     }
 }

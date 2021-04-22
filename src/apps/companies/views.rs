@@ -1,17 +1,6 @@
 use actix_web::{http::header, web, Error, HttpRequest, HttpResponse};
-use serde::{Deserialize, Serialize};
 
 use crate::apps::companies::models;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CreateCompany {
-    pub name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateCompany {
-    pub name: Option<String>,
-}
 
 pub async fn list() -> Result<HttpResponse, Error> {
     Ok(web::block(move || models::Company::all())
@@ -21,13 +10,11 @@ pub async fn list() -> Result<HttpResponse, Error> {
 }
 
 pub async fn create(
-    json: web::Json<CreateCompany>,
+    web::Json(json): web::Json<models::CreateCompany>,
     request: HttpRequest,
 ) -> Result<HttpResponse, Error> {
-    let item = models::CreateCompany {
-        name: json.into_inner().name,
-    };
-    Ok(web::block(move || item.create())
+    let create = models::CreateCompany { name: json.name };
+    Ok(web::block(move || models::Company::create(&create))
         .await
         .map(|item| {
             let url = request.url_for("company-detail", &[item.id.to_string()]);
@@ -43,7 +30,7 @@ pub async fn create(
 
 pub async fn update(
     web::Path(id): web::Path<i32>,
-    json: web::Json<UpdateCompany>,
+    web::Json(json): web::Json<models::UpdateCompany>,
 ) -> Result<HttpResponse, Error> {
     let item = web::block(move || models::Company::id(id))
         .await
@@ -52,16 +39,16 @@ pub async fn update(
             HttpResponse::InternalServerError().finish()
         })?;
 
-    match item {
-        Some(item) => Ok(web::block(move || item.update(&json.into_inner()))
+    Ok(match item {
+        Some(item) => web::block(move || item.update(&json))
             .await
             .map(|item| HttpResponse::Ok().json(item))
             .map_err(|e| {
                 eprintln!("{}", e);
                 HttpResponse::InternalServerError().finish()
-            })?),
-        None => Ok(HttpResponse::NotFound().finish()),
-    }
+            })?,
+        None => HttpResponse::NotFound().finish(),
+    })
 }
 
 pub async fn retrieve(web::Path(id): web::Path<i32>) -> Result<HttpResponse, Error> {
@@ -82,14 +69,14 @@ pub async fn destroy(web::Path(id): web::Path<i32>) -> Result<HttpResponse, Erro
             HttpResponse::InternalServerError().finish()
         })?;
 
-    match item {
-        Some(item) => Ok(web::block(move || item.delete())
+    Ok(match item {
+        Some(item) => web::block(move || item.delete())
             .await
             .map(|_| HttpResponse::NoContent().finish())
             .map_err(|e| {
                 eprintln!("{}", e);
                 HttpResponse::InternalServerError().finish()
-            })?),
-        None => Ok(HttpResponse::NotFound().finish()),
-    }
+            })?,
+        None => HttpResponse::NotFound().finish(),
+    })
 }

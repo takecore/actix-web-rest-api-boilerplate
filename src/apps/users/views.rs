@@ -18,7 +18,7 @@ pub async fn list() -> Result<HttpResponse, Error> {
 
 pub async fn create(
     web::Path(company_id): web::Path<i32>,
-    web::Json(json): web::Json<CreateUser>,
+    web::Json(json): web::Json<models::CreateUser>,
     request: HttpRequest,
 ) -> Result<HttpResponse, Error> {
     let company = web::block(move || Company::id(company_id))
@@ -28,13 +28,13 @@ pub async fn create(
             HttpResponse::InternalServerError().finish()
         })?;
 
-    match company {
+    Ok(match company {
         Some(company) => {
             let user = models::CreateUser {
                 company_id: company.id,
                 name: json.name,
             };
-            Ok(web::block(move || user.create())
+            web::block(move || user.create())
                 .await
                 .map(|user| {
                     let url = request.url_for(
@@ -48,10 +48,10 @@ pub async fn create(
                 .map_err(|e| {
                     eprintln!("{}", e);
                     HttpResponse::InternalServerError().finish()
-                })?)
+                })?
         }
-        None => Ok(HttpResponse::NotFound().finish()),
-    }
+        None => HttpResponse::NotFound().finish(),
+    })
 }
 
 pub async fn update() -> impl Responder {
