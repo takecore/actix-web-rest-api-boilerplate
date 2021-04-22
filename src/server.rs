@@ -30,6 +30,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .route(web::get().to(apps::companies::views::list))
             .route(web::post().to(apps::companies::views::create)),
     )
+    .route("/blocking", web::get().to(apps::blocking))
+    .route("/nonblocking", web::get().to(apps::nonblocking))
     .route("/echo", web::get().to(apps::echo))
     .route("/", web::get().to(apps::hello));
 }
