@@ -1,7 +1,6 @@
 use actix_web::{web, App, HttpServer};
 
 use crate::apps;
-use crate::db;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -38,8 +37,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 
 #[actix_web::main]
 pub async fn run() -> std::io::Result<()> {
-    db::init();
-
     HttpServer::new(move || App::new().configure(routes))
         .bind("127.0.0.1:8080")?
         .run()
