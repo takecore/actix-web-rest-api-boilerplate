@@ -6,6 +6,10 @@ run:
 watch:
 	cargo watch -x 'run'
 
+.PHONY: build
+build:
+	cargo build --release
+
 .PHONY: migrate
 migrate:
 	diesel migration run
