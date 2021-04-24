@@ -31,7 +31,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     )
     .route("/blocking", web::get().to(apps::blocking))
     .route("/nonblocking", web::get().to(apps::nonblocking))
-    .route("/echo", web::get().to(apps::echo))
+    .route("/health_check", web::get().to(apps::health_check))
     .route("/", web::get().to(apps::hello));
 }
 

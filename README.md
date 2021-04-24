@@ -1,4 +1,4 @@
-# Actix-web3 REST Api boilerplate
+# Actix-web3 REST API boilerplate
 
 ## Setup and run server
 
