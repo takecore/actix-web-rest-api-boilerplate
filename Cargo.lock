@@ -265,6 +265,7 @@ dependencies = [
 name = "actix-web3-rest-api-boilerplate"
 version = "0.1.0"
 dependencies = [
+ "actix-rt",
  "actix-web",
  "chrono",
  "diesel",

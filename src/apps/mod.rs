@@ -7,8 +7,8 @@ pub async fn hello() -> impl Responder {
     HttpResponse::Ok().body(String::from("Hello actix-web3-rest-api!"))
 }
 
-pub async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
+pub async fn health_check() -> impl Responder {
+    HttpResponse::Ok()
 }
 
 // confirm bloking behavior. can delete lines.
