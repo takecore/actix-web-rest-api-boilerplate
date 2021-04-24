@@ -26,22 +26,27 @@ $ make watch
 │   │   └── up.sql
 │   └── ...
 ├── README.md
-└── src
-    ├── apps
-    │   ├── companies
-    │   │   ├── models.rs
-    │   │   ├── mod.rs
-    │   │   └── views.rs
-    │   ├── mod.rs
-    │   ├── users
-    │   │   ├── models.rs
-    │   │   ├── mod.rs
-    │   │   └── views.rs
-    │   └── ... # create other resouce
-    ├── db.rs
-    ├── main.rs
-    ├── schema.rs
-    └── server.rs
+├── src
+│   ├── apps
+│   │   ├── companies
+│   │   │   ├── models.rs
+│   │   │   ├── mod.rs
+│   │   │   └── views.rs
+│   │   ├── mod.rs
+│   │   ├── users
+│   │   │   ├── models.rs
+│   │   │   ├── mod.rs
+│   │   │   └── views.rs
+│   │   └── ... # create other resouce
+│   ├── bin
+│   │   └── main.rs
+│   ├── db.rs
+│   ├── lib.rs
+│   ├── schema.rs
+│   └── server.rs
+└── tests
+    └── apps
+        └── health_check.rs
 ```
 
 ## Other
