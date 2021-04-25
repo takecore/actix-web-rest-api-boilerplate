@@ -1,82 +1,58 @@
-use actix_web::{http::header, web, Error, HttpRequest, HttpResponse};
+use actix_web::{http::header, web, HttpRequest, HttpResponse};
 
 use crate::apps::companies::models;
+use crate::error::AppError;
 
-pub async fn list() -> Result<HttpResponse, Error> {
-    Ok(web::block(move || models::Company::all())
+pub async fn list() -> Result<HttpResponse, AppError> {
+    let items = web::block(move || models::Company::all())
         .await
-        .map(|items| HttpResponse::Ok().json(items))
-        .map_err(|_| HttpResponse::InternalServerError())?)
+        .map_err(|e| AppError::from(e))?;
+    Ok(HttpResponse::Ok().json(items))
 }
 
 pub async fn create(
     web::Json(json): web::Json<models::CreateCompany>,
     request: HttpRequest,
-) -> Result<HttpResponse, Error> {
+) -> Result<HttpResponse, AppError> {
     let create = models::CreateCompany { name: json.name };
-    Ok(web::block(move || models::Company::create(&create))
+    let item = web::block(move || models::Company::create(&create))
         .await
-        .map(|item| {
-            let url = request.url_for("company-detail", &[item.id.to_string()]);
-            HttpResponse::Created()
-                .header(header::LOCATION, url.ok().unwrap().as_str())
-                .json(item)
-        })
-        .map_err(|e| {
-            eprintln!("{}", e);
-            HttpResponse::InternalServerError().finish()
-        })?)
+        .map_err(|e| AppError::from(e))?;
+
+    let url = request.url_for("company-detail", &[item.id.to_string()]);
+    Ok(HttpResponse::Created()
+        .header(header::LOCATION, url.ok().unwrap().as_str())
+        .json(item))
 }
 
 pub async fn update(
     web::Path(id): web::Path<i32>,
     web::Json(json): web::Json<models::UpdateCompany>,
-) -> Result<HttpResponse, Error> {
-    let item = web::block(move || models::Company::id(id))
-        .await
-        .map_err(|e| {
-            eprintln!("{}", e);
-            HttpResponse::InternalServerError().finish()
-        })?;
-
-    Ok(match item {
-        Some(item) => web::block(move || item.update(&json))
-            .await
-            .map(|item| HttpResponse::Ok().json(item))
-            .map_err(|e| {
-                eprintln!("{}", e);
-                HttpResponse::InternalServerError().finish()
-            })?,
-        None => HttpResponse::NotFound().finish(),
+) -> Result<HttpResponse, AppError> {
+    let updated = web::block(move || {
+        let item = models::Company::id(id);
+        item.unwrap().update(&json)
     })
+    .await
+    .map_err(|e| AppError::from(e))?;
+
+    Ok(HttpResponse::Ok().json(updated))
 }
 
-pub async fn retrieve(web::Path(id): web::Path<i32>) -> Result<HttpResponse, Error> {
-    Ok(web::block(move || models::Company::id(id))
-        .await
-        .map(|item| match item {
-            Some(v) => HttpResponse::Ok().json(v),
-            None => HttpResponse::NotFound().finish(),
-        })
-        .map_err(|_| HttpResponse::InternalServerError())?)
-}
-
-pub async fn destroy(web::Path(id): web::Path<i32>) -> Result<HttpResponse, Error> {
+pub async fn retrieve(web::Path(id): web::Path<i32>) -> Result<HttpResponse, AppError> {
     let item = web::block(move || models::Company::id(id))
         .await
-        .map_err(|e| {
-            eprintln!("{}", e);
-            HttpResponse::InternalServerError().finish()
-        })?;
+        .map_err(|e| AppError::from(e))?;
+    Ok(HttpResponse::Ok().json(item))
+}
 
-    Ok(match item {
-        Some(item) => web::block(move || item.delete())
-            .await
-            .map(|_| HttpResponse::NoContent().finish())
-            .map_err(|e| {
-                eprintln!("{}", e);
-                HttpResponse::InternalServerError().finish()
-            })?,
-        None => HttpResponse::NotFound().finish(),
+pub async fn destroy(web::Path(id): web::Path<i32>) -> Result<HttpResponse, AppError> {
+    let _ = web::block(move || {
+        let item = models::Company::id(id);
+        item.unwrap().delete()
     })
+    .await
+    .map_err(|e| AppError::from(e))?;
+
+    Ok(HttpResponse::NoContent().finish())
 }

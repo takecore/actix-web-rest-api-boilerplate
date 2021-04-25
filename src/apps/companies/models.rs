@@ -33,12 +33,9 @@ impl Company {
         Ok(items)
     }
 
-    pub fn id(id: i32) -> Result<Option<Self>, Error> {
+    pub fn id(id: i32) -> Result<Self, Error> {
         use crate::schema::companies::dsl::companies;
-        let item = companies
-            .find(id)
-            .get_result::<Self>(&db::connect())
-            .optional()?;
+        let item = companies.find(id).get_result::<Self>(&db::connect())?;
         Ok(item)
     }
 

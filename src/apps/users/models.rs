@@ -28,32 +28,26 @@ impl User {
         Ok(items)
     }
 
-    pub fn id(id: i32) -> Result<Option<Self>, Error> {
+    pub fn id(id: i32) -> Result<Self, Error> {
         use crate::schema::users::dsl::users;
-        let item = users
-            .find(id)
-            .get_result::<Self>(&db::connect())
-            .optional()?;
+        let item = users.find(id).get_result::<Self>(&db::connect())?;
         Ok(item)
     }
 
-    pub fn id_with_company_id(id: i32, company_id: i32) -> Result<Option<Self>, Error> {
+    pub fn id_with_company_id(id: i32, company_id: i32) -> Result<Self, Error> {
         use crate::schema::users::dsl;
         let item = dsl::users
             .find(id)
             .filter(dsl::company_id.eq(company_id))
-            .get_result::<Self>(&db::connect())
-            .optional()?;
+            .get_result::<Self>(&db::connect())?;
         Ok(item)
     }
-}
 
-impl CreateUser {
-    pub fn create(&self) -> Result<User, Error> {
+    pub fn create(create: &CreateUser) -> Result<Self, Error> {
         use crate::schema::users::dsl::users;
         let item = diesel::insert_into(users)
-            .values(self)
-            .get_result::<User>(&db::connect())?;
+            .values(create)
+            .get_result::<Self>(&db::connect())?;
         Ok(item)
     }
 }
