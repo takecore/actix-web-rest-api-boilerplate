@@ -9,5 +9,6 @@ extern crate num_cpus;
 
 pub mod apps;
 pub mod db;
+pub mod error;
 pub mod schema;
 pub mod server;
