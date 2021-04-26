@@ -41,6 +41,7 @@ $ make watch
 │   ├── bin
 │   │   └── main.rs
 │   ├── db.rs
+│   ├── error.rs
 │   ├── lib.rs
 │   ├── schema.rs
 │   └── server.rs
