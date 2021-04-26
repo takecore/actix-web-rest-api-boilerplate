@@ -19,21 +19,19 @@ pub async fn list() -> Result<HttpResponse, AppError> {
 
 pub async fn create(
     web::Path(company_id): web::Path<i32>,
-    web::Json(json): web::Json<models::CreateUser>,
+    web::Json(json): web::Json<CreateUser>,
     request: HttpRequest,
 ) -> Result<HttpResponse, AppError> {
-    // TODO describe get company and create user on 1 web::block
-    let company = web::block(move || Company::id(company_id))
-        .await
-        .map_err(|e| AppError::from(e))?;
-
-    let user = models::CreateUser {
-        company_id: company.id,
-        name: json.name,
-    };
-    let created = web::block(move || models::User::create(&user))
-        .await
-        .map_err(|e| AppError::from(e))?;
+    let (company, created) = web::block(move || -> Result<(Company, models::User), AppError> {
+        let company = Company::id(company_id).unwrap();
+        let user = models::CreateUser {
+            company_id: company.id,
+            name: json.name,
+        };
+        Ok((company, models::User::create(&user).unwrap()))
+    })
+    .await
+    .map_err(|e| AppError::from(e))?;
 
     let url = request.url_for(
         "user-detail",
