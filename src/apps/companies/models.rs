@@ -39,7 +39,7 @@ impl Company {
         Ok(item)
     }
 
-    pub fn create(create: &CreateCompany) -> Result<Company, Error> {
+    pub fn create(create: &CreateCompany) -> Result<Self, Error> {
         use crate::schema::companies::dsl::companies;
         let item = diesel::insert_into(companies)
             .values(create)
@@ -47,7 +47,7 @@ impl Company {
         Ok(item)
     }
 
-    pub fn update(&self, update: &UpdateCompany) -> Result<Company, Error> {
+    pub fn update(&self, update: &UpdateCompany) -> Result<Self, Error> {
         let item = diesel::update(self)
             .set(update)
             .get_result::<Self>(&db::connect())?;

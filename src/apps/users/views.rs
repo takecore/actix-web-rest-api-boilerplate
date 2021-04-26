@@ -42,8 +42,18 @@ pub async fn create(
         .json(created))
 }
 
-pub async fn update() -> impl Responder {
-    HttpResponse::Ok().body("user update")
+pub async fn update(
+    web::Path((company_id, user_id)): web::Path<(i32, i32)>,
+    web::Json(json): web::Json<models::UpdateUser>,
+) -> Result<HttpResponse, AppError> {
+    let updated = web::block(move || {
+        let item = models::User::id_with_company_id(user_id, company_id);
+        item.unwrap().update(&json)
+    })
+    .await
+    .map_err(|e| AppError::from(e))?;
+
+    Ok(HttpResponse::Ok().json(updated))
 }
 
 pub async fn retrieve(
@@ -55,6 +65,15 @@ pub async fn retrieve(
     Ok(HttpResponse::Ok().json(item))
 }
 
-pub async fn destroy() -> impl Responder {
-    HttpResponse::Ok().body("user destroy")
+pub async fn destroy(
+    web::Path((company_id, user_id)): web::Path<(i32, i32)>,
+) -> Result<HttpResponse, AppError> {
+    let _ = web::block(move || {
+        let item = models::User::id_with_company_id(user_id, company_id);
+        item.unwrap().delete()
+    })
+    .await
+    .map_err(|e| AppError::from(e))?;
+
+    Ok(HttpResponse::NoContent().finish())
 }

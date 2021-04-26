@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::db;
 use crate::schema::users;
 
-#[derive(Queryable, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Identifiable)]
 pub struct User {
     pub id: i32,
     pub company_id: i32, // TODO relation
@@ -19,6 +19,12 @@ pub struct User {
 pub struct CreateUser {
     pub company_id: i32,
     pub name: String,
+}
+
+#[derive(Deserialize, AsChangeset)]
+#[table_name = "users"]
+pub struct UpdateUser {
+    pub name: Option<String>,
 }
 
 impl User {
@@ -49,5 +55,17 @@ impl User {
             .values(create)
             .get_result::<Self>(&db::connect())?;
         Ok(item)
+    }
+
+    pub fn update(&self, update: &UpdateUser) -> Result<Self, Error> {
+        let item = diesel::update(self)
+            .set(update)
+            .get_result::<Self>(&db::connect())?;
+        Ok(item)
+    }
+
+    pub fn delete(&self) -> Result<usize, Error> {
+        let count = diesel::delete(self).execute(&db::connect())?;
+        Ok(count)
     }
 }
