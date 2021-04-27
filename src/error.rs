@@ -73,6 +73,7 @@ impl ResponseError for AppError {
     }
     fn error_response(&self) -> HttpResponse {
         // TODO if 500 error then logging
+        // and change title to Internal Server Error occurd
         let stauts = self.status_code();
         HttpResponse::build(stauts).json(self)
     }

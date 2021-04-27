@@ -30,8 +30,8 @@ pub async fn update(
     web::Json(json): web::Json<models::UpdateCompany>,
 ) -> Result<HttpResponse, AppError> {
     let updated = web::block(move || {
-        let item = models::Company::id(id);
-        item.unwrap().update(&json)
+        let item = models::Company::id(id)?;
+        item.update(&json)
     })
     .await
     .map_err(|e| AppError::from(e))?;
@@ -48,8 +48,8 @@ pub async fn retrieve(web::Path(id): web::Path<i32>) -> Result<HttpResponse, App
 
 pub async fn destroy(web::Path(id): web::Path<i32>) -> Result<HttpResponse, AppError> {
     let _ = web::block(move || {
-        let item = models::Company::id(id);
-        item.unwrap().delete()
+        let item = models::Company::id(id)?;
+        item.delete()
     })
     .await
     .map_err(|e| AppError::from(e))?;

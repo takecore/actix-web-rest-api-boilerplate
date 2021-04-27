@@ -23,12 +23,12 @@ pub async fn create(
     request: HttpRequest,
 ) -> Result<HttpResponse, AppError> {
     let (company, created) = web::block(move || -> Result<(Company, models::User), AppError> {
-        let company = Company::id(company_id).unwrap();
+        let company = Company::id(company_id)?;
         let user = models::CreateUser {
             company_id: company.id,
             name: json.name,
         };
-        Ok((company, models::User::create(&user).unwrap()))
+        Ok((company, models::User::create(&user)?))
     })
     .await
     .map_err(|e| AppError::from(e))?;
@@ -47,8 +47,8 @@ pub async fn update(
     web::Json(json): web::Json<models::UpdateUser>,
 ) -> Result<HttpResponse, AppError> {
     let updated = web::block(move || {
-        let item = models::User::id_with_company_id(user_id, company_id);
-        item.unwrap().update(&json)
+        let item = models::User::id_with_company_id(user_id, company_id)?;
+        item.update(&json)
     })
     .await
     .map_err(|e| AppError::from(e))?;
@@ -69,8 +69,8 @@ pub async fn destroy(
     web::Path((company_id, user_id)): web::Path<(i32, i32)>,
 ) -> Result<HttpResponse, AppError> {
     let _ = web::block(move || {
-        let item = models::User::id_with_company_id(user_id, company_id);
-        item.unwrap().delete()
+        let item = models::User::id_with_company_id(user_id, company_id)?;
+        item.delete()
     })
     .await
     .map_err(|e| AppError::from(e))?;
