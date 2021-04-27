@@ -1,4 +1,4 @@
-use actix_web::{http::header, web, HttpRequest, HttpResponse, Responder};
+use actix_web::{http::header, web, HttpRequest, HttpResponse};
 use serde::{Deserialize, Serialize};
 
 use crate::apps::companies::models::Company;
