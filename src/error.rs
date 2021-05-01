@@ -20,8 +20,18 @@ pub enum AppErrorKind {
 }
 
 impl fmt::Display for AppError {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str(&self.to_string())
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {}, {})", self.status, self.title, self.kind)
+    }
+}
+
+impl fmt::Display for AppErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Self::NotFoundError => write!(f, "NotFoundError"),
+            Self::DatabaseError => write!(f, "DatabaseError"),
+            Self::InternalServerError => write!(f, "InternalServerError"),
+        }
     }
 }
 
