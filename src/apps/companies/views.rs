@@ -4,9 +4,7 @@ use crate::apps::companies::models;
 use crate::error::AppError;
 
 pub async fn list() -> Result<HttpResponse, AppError> {
-    let items = web::block(move || models::Company::all())
-        .await
-        .map_err(|e| AppError::from(e))?;
+    let items = web::block(move || models::Company::all()).await?;
     Ok(HttpResponse::Ok().json(items))
 }
 
@@ -15,9 +13,7 @@ pub async fn create(
     request: HttpRequest,
 ) -> Result<HttpResponse, AppError> {
     let create = models::CreateCompany { name: json.name };
-    let item = web::block(move || models::Company::create(&create))
-        .await
-        .map_err(|e| AppError::from(e))?;
+    let item = web::block(move || models::Company::create(&create)).await?;
 
     let url = request.url_for("company-detail", &[item.id.to_string()]);
     Ok(HttpResponse::Created()
@@ -33,16 +29,13 @@ pub async fn update(
         let item = models::Company::id(id)?;
         item.update(&json)
     })
-    .await
-    .map_err(|e| AppError::from(e))?;
+    .await?;
 
     Ok(HttpResponse::Ok().json(updated))
 }
 
 pub async fn retrieve(web::Path(id): web::Path<i32>) -> Result<HttpResponse, AppError> {
-    let item = web::block(move || models::Company::id(id))
-        .await
-        .map_err(|e| AppError::from(e))?;
+    let item = web::block(move || models::Company::id(id)).await?;
     Ok(HttpResponse::Ok().json(item))
 }
 
@@ -51,8 +44,7 @@ pub async fn destroy(web::Path(id): web::Path<i32>) -> Result<HttpResponse, AppE
         let item = models::Company::id(id)?;
         item.delete()
     })
-    .await
-    .map_err(|e| AppError::from(e))?;
+    .await?;
 
     Ok(HttpResponse::NoContent().finish())
 }

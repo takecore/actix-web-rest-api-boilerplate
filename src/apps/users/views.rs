@@ -11,9 +11,7 @@ pub struct CreateUser {
 }
 
 pub async fn list() -> Result<HttpResponse, AppError> {
-    let items = web::block(move || models::User::all())
-        .await
-        .map_err(|e| AppError::from(e))?;
+    let items = web::block(move || models::User::all()).await?;
     Ok(HttpResponse::Ok().json(items))
 }
 
@@ -30,8 +28,7 @@ pub async fn create(
         };
         Ok((company, models::User::create(&user)?))
     })
-    .await
-    .map_err(|e| AppError::from(e))?;
+    .await?;
 
     let url = request.url_for(
         "user-detail",
@@ -50,8 +47,7 @@ pub async fn update(
         let item = models::User::id_with_company_id(user_id, company_id)?;
         item.update(&json)
     })
-    .await
-    .map_err(|e| AppError::from(e))?;
+    .await?;
 
     Ok(HttpResponse::Ok().json(updated))
 }
@@ -59,9 +55,7 @@ pub async fn update(
 pub async fn retrieve(
     web::Path((company_id, user_id)): web::Path<(i32, i32)>,
 ) -> Result<HttpResponse, AppError> {
-    let item = web::block(move || models::User::id_with_company_id(user_id, company_id))
-        .await
-        .map_err(|e| AppError::from(e))?;
+    let item = web::block(move || models::User::id_with_company_id(user_id, company_id)).await?;
     Ok(HttpResponse::Ok().json(item))
 }
 
@@ -72,8 +66,7 @@ pub async fn destroy(
         let item = models::User::id_with_company_id(user_id, company_id)?;
         item.delete()
     })
-    .await
-    .map_err(|e| AppError::from(e))?;
+    .await?;
 
     Ok(HttpResponse::NoContent().finish())
 }
