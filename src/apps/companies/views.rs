@@ -2,9 +2,15 @@ use actix_web::{http::header, web, HttpRequest, HttpResponse};
 
 use crate::apps::companies::models;
 use crate::error::AppError;
+use serde::Deserialize;
 
-pub async fn list() -> Result<HttpResponse, AppError> {
-    let items = web::block(move || models::Company::all()).await?;
+#[derive(Debug, Deserialize)]
+pub struct SearchQuery {
+    pub name: Option<String>,
+}
+
+pub async fn list(web::Query(query): web::Query<SearchQuery>) -> Result<HttpResponse, AppError> {
+    let items = web::block(move || models::Company::search(query)).await?;
     Ok(HttpResponse::Ok().json(items))
 }
 

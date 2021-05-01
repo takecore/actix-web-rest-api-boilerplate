@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use serde::{Deserialize, Serialize};
 
+use crate::apps::companies::views::SearchQuery;
 use crate::db;
 use crate::schema::companies;
 
@@ -30,6 +31,17 @@ impl Company {
     pub fn all() -> Result<Vec<Self>, Error> {
         use crate::schema::companies::dsl::companies;
         let items = companies.load::<Self>(&db::connect())?;
+        Ok(items)
+    }
+
+    pub fn search(params: SearchQuery) -> Result<Vec<Self>, Error> {
+        let mut query = companies::table.order(companies::id.desc()).into_boxed();
+
+        if let Some(v) = params.name {
+            query = query.filter(companies::name.like(format!("%{}%", v)))
+        }
+
+        let items = query.load::<Self>(&db::connect())?;
         Ok(items)
     }
 
