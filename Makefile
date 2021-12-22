@@ -10,6 +10,10 @@ watch:
 build:
 	cargo build --release
 
+.PHONY: test
+test:
+	cargo test --test entry_test
+
 .PHONY: migrate
 migrate:
 	diesel migration run
@@ -20,4 +24,4 @@ migrate-redo:
 
 .PHONY: reset-db
 reset-db:
-	diesel database reste
+	diesel database reset

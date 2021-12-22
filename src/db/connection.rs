@@ -12,10 +12,13 @@ pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 static DBPOOL: Lazy<DbPool> = Lazy::new(|| {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let manager = ConnectionManager::<PgConnection>::new(database_url);
-    let cpus = num_cpus::get() as u32;
-    info!("Create {} DB connections", cpus * 4);
+    let pool_size: u32 = match cfg!(test) {
+        true => 1,
+        false => (num_cpus::get() * 4) as u32,
+    };
+    info!("Create {} DB connections", pool_size);
     let pool = r2d2::Pool::builder()
-        .max_size(cpus * 4)
+        .max_size(pool_size)
         .build(manager)
         .expect("Failed to create DB connection pool.");
     pool

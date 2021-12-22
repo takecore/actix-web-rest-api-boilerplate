@@ -1,10 +1,10 @@
-use dotenv::dotenv;
+use dotenv;
 
 use lib::db::connection;
 use lib::server;
 
 fn main() -> std::io::Result<()> {
-    dotenv().ok();
+    dotenv::from_filename(".env").ok();
     env_logger::init();
     connection::init();
     server::run()
