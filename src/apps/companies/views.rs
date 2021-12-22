@@ -7,10 +7,29 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct SearchQuery {
     pub name: Option<String>,
+    pub page: Option<i64>,
+}
+
+impl Default for SearchQuery {
+    fn default() -> Self {
+        Self {
+            name: None,
+            page: Some(1),
+        }
+    }
+}
+
+impl std::fmt::Display for SearchQuery {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}, {:?}", self.name, self.page)
+    }
 }
 
 pub async fn list(web::Query(query): web::Query<SearchQuery>) -> Result<HttpResponse, AppError> {
-    let items = web::block(move || models::Company::search(query)).await?;
+    info!("companies list query is {}", query);
+    let (items, total_pages) = web::block(move || models::Company::search(query)).await?;
+    // TODO: total_pages を link header のレスポンスなどで返す
+    info!("total_pages is {}", total_pages);
     Ok(HttpResponse::Ok().json(items))
 }
 

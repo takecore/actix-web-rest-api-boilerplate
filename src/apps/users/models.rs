@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use serde::{Deserialize, Serialize};
 
-use crate::db;
+use crate::db::connection;
 use crate::schema::users;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable)]
@@ -30,13 +30,13 @@ pub struct UpdateUser {
 impl User {
     pub fn all() -> Result<Vec<Self>, Error> {
         use crate::schema::users::dsl::users;
-        let items = users.load::<Self>(&db::connect())?;
+        let items = users.load::<Self>(&connection::connect())?;
         Ok(items)
     }
 
     pub fn id(id: i32) -> Result<Self, Error> {
         use crate::schema::users::dsl::users;
-        let item = users.find(id).get_result::<Self>(&db::connect())?;
+        let item = users.find(id).get_result::<Self>(&connection::connect())?;
         Ok(item)
     }
 
@@ -45,7 +45,7 @@ impl User {
         let item = dsl::users
             .find(id)
             .filter(dsl::company_id.eq(company_id))
-            .get_result::<Self>(&db::connect())?;
+            .get_result::<Self>(&connection::connect())?;
         Ok(item)
     }
 
@@ -53,19 +53,19 @@ impl User {
         use crate::schema::users::dsl::users;
         let item = diesel::insert_into(users)
             .values(create)
-            .get_result::<Self>(&db::connect())?;
+            .get_result::<Self>(&connection::connect())?;
         Ok(item)
     }
 
     pub fn update(&self, update: &UpdateUser) -> Result<Self, Error> {
         let item = diesel::update(self)
             .set(update)
-            .get_result::<Self>(&db::connect())?;
+            .get_result::<Self>(&connection::connect())?;
         Ok(item)
     }
 
     pub fn delete(&self) -> Result<usize, Error> {
-        let count = diesel::delete(self).execute(&db::connect())?;
+        let count = diesel::delete(self).execute(&connection::connect())?;
         Ok(count)
     }
 }

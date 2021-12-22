@@ -3,7 +3,8 @@ use diesel::result::Error;
 use serde::{Deserialize, Serialize};
 
 use crate::apps::companies::views::SearchQuery;
-use crate::db;
+use crate::db::connection;
+use crate::db::pagination::Paginate;
 use crate::schema::companies;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable)]
@@ -30,24 +31,28 @@ pub struct UpdateCompany {
 impl Company {
     pub fn all() -> Result<Vec<Self>, Error> {
         use crate::schema::companies::dsl::companies;
-        let items = companies.load::<Self>(&db::connect())?;
+        let items = companies.load::<Self>(&connection::connect())?;
         Ok(items)
     }
 
-    pub fn search(params: SearchQuery) -> Result<Vec<Self>, Error> {
+    pub fn search(params: SearchQuery) -> Result<(Vec<Self>, i64), Error> {
         let mut query = companies::table.order(companies::id.desc()).into_boxed();
 
         if let Some(v) = params.name {
             query = query.filter(companies::name.like(format!("%{}%", v)))
         }
 
-        let items = query.load::<Self>(&db::connect())?;
-        Ok(items)
+        let (items, total_pages) = query
+            .paginate(params.page.unwrap_or(1))
+            .load_and_count_pages::<Self>(&connection::connect())?;
+        Ok((items, total_pages))
     }
 
     pub fn id(id: i32) -> Result<Self, Error> {
         use crate::schema::companies::dsl::companies;
-        let item = companies.find(id).get_result::<Self>(&db::connect())?;
+        let item = companies
+            .find(id)
+            .get_result::<Self>(&connection::connect())?;
         Ok(item)
     }
 
@@ -55,19 +60,19 @@ impl Company {
         use crate::schema::companies::dsl::companies;
         let item = diesel::insert_into(companies)
             .values(create)
-            .get_result::<Company>(&db::connect())?;
+            .get_result::<Company>(&connection::connect())?;
         Ok(item)
     }
 
     pub fn update(&self, update: &UpdateCompany) -> Result<Self, Error> {
         let item = diesel::update(self)
             .set(update)
-            .get_result::<Self>(&db::connect())?;
+            .get_result::<Self>(&connection::connect())?;
         Ok(item)
     }
 
     pub fn delete(&self) -> Result<usize, Error> {
-        let count = diesel::delete(self).execute(&db::connect())?;
+        let count = diesel::delete(self).execute(&connection::connect())?;
         Ok(count)
     }
 }
